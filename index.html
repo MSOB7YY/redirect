@@ -41,16 +41,28 @@
         params.delete("url");
         if (url) {
           var finalUrl = url;
+          var firstP = true;
           params.forEach((value, key) => {
-            finalUrl += "&" + key + "=" + value;
+            var prefix;
+            if (firstP) {
+              prefix = "?";
+              firstP = false;
+            } else {
+              prefix = "&";
+            }
+            finalUrl += prefix + key + "=" + value;
           });
-          
+
+          window.location.href = finalUrl;
+
           const redirectButton = document.getElementById("redirectButton");
           redirectButton.onclick = function () {
             window.location.href = finalUrl;
           };
 
-          document.getElementById("message").innerText = 'Click the button to continue';
+          document.getElementById("message").innerText =
+            "Click the button to continue";
+          document.getElementById("message").innerText = finalUrl;
           redirectButton.style.display = "inline-block";
         } else {
           document.getElementById("message").innerText =
