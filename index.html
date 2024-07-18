@@ -14,9 +14,11 @@
         margin: 0;
         font-family: Arial, sans-serif;
       }
+
       #message {
         color: rgb(231, 231, 231);
       }
+
       #redirectButton {
         display: none;
         padding: 10px 20px;
@@ -27,6 +29,7 @@
         cursor: pointer;
         font-size: 16px;
       }
+
       #redirectButton:hover {
         background-color: #0056b3;
       }
@@ -35,13 +38,19 @@
       window.onload = function () {
         const params = new URLSearchParams(window.location.search);
         const url = params.get("url");
+        params.delete("url");
         if (url) {
+          var finalUrl = url;
+          params.forEach((value, key) => {
+            finalUrl += "&" + key + "=" + value;
+          });
+          
           const redirectButton = document.getElementById("redirectButton");
           redirectButton.onclick = function () {
-            window.location.href = decodeURIComponent(url);
+            window.location.href = finalUrl;
           };
-          document.getElementById("message").innerText =
-            "Click the button to continue";
+
+          document.getElementById("message").innerText = 'Click the button to continue';
           redirectButton.style.display = "inline-block";
         } else {
           document.getElementById("message").innerText =
