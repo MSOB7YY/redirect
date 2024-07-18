@@ -1,21 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redirecting...</title>
+    <style>
+      body {
+        background-color: rgb(29, 29, 29);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+      #message {
+        color: rgb(231, 231, 231);
+      }
+      #redirectButton {
+        display: none;
+        padding: 10px 20px;
+        background-color: #007bff;
+        border-radius: 0.5em;
+        color: rgb(231, 231, 231);
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #redirectButton:hover {
+        background-color: #0056b3;
+      }
+    </style>
     <script>
-        window.onload = function() {
-            const params = new URLSearchParams(window.location.search);
-            const url = params.get('url');
-            if (url) {
-                window.location.href = url;
-            } else {
-                document.body.innerText = 'No URL provided for redirection.';
-            }
-        };
+      window.onload = function () {
+        const params = new URLSearchParams(window.location.search);
+        const url = params.get("url");
+        if (url) {
+          const redirectButton = document.getElementById("redirectButton");
+          redirectButton.onclick = function () {
+            window.location.href = decodeURIComponent(url);
+          };
+          document.getElementById("message").innerText =
+            "Click the button to continue";
+          redirectButton.style.display = "inline-block";
+        } else {
+          document.getElementById("message").innerText =
+            "No URL provided for redirection.";
+        }
+      };
     </script>
-</head>
-<body>
-</body>
+  </head>
+
+  <body>
+    <div id="container">
+      <p id="message"></p>
+      <button id="redirectButton">Return to Namida</button>
+    </div>
+  </body>
 </html>
