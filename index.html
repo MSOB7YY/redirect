@@ -44,6 +44,8 @@
           params.forEach((value, key) => {
             finalUrl += "&" + key + "=" + value;
           });
+
+          window.location.href = finalUrl;
           
           const redirectButton = document.getElementById("redirectButton");
           redirectButton.onclick = function () {
