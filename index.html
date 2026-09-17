@@ -7,28 +7,32 @@
     <title>Namida</title>
     <style>
       :root {
-        --bg: #f4f1f8;
+        --bg: #faf8f6;
         --card: #ffffff;
-        --text: #231f2b;
-        --text-dim: #6b6478;
-        --accent: #8b5d99;
-        --accent-hover: #744b81;
-        --secondary: #ece6f2;
-        --secondary-hover: #e0d7e9;
-        --error: #c0392b;
+        --border: #e7e2dc;
+        --text: #1d1d1d;
+        --text-dim: #6e6e6e;
+        --accent: #6f4e37;
+        --accent-hover: #573c2a;
+        --on-accent: #ffffff;
+        --secondary: #f3efea;
+        --secondary-hover: #e7e2dc;
+        --error: #a8443a;
       }
 
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #17141c;
-          --card: #231f2b;
-          --text: #ece8f2;
-          --text-dim: #a59db3;
-          --accent: #a877b8;
-          --accent-hover: #b98ac8;
-          --secondary: #322c3d;
-          --secondary-hover: #3d364a;
-          --error: #ff7b6b;
+          --bg: #131110;
+          --card: #1d1b17;
+          --border: #2e2a23;
+          --text: #f5f0e6;
+          --text-dim: #8a8473;
+          --accent: #d1a077;
+          --accent-hover: #dcb08c;
+          --on-accent: #1a0d06;
+          --secondary: #2e2a23;
+          --secondary-hover: #3d382e;
+          --error: #e08a7d;
         }
       }
 
@@ -55,7 +59,8 @@
         width: 100%;
         max-width: 400px;
         text-align: center;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--border);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
       }
 
       h1 {
@@ -93,7 +98,7 @@
 
       #returnButton {
         background-color: var(--accent);
-        color: #ffffff;
+        color: var(--on-accent);
       }
 
       #returnButton:hover {
