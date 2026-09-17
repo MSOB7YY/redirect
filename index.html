@@ -3,79 +3,209 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Redirecting...</title>
+    <meta name="referrer" content="no-referrer" />
+    <title>Namida</title>
     <style>
+      :root {
+        --bg: #f4f1f8;
+        --card: #ffffff;
+        --text: #231f2b;
+        --text-dim: #6b6478;
+        --accent: #8b5d99;
+        --accent-hover: #744b81;
+        --secondary: #ece6f2;
+        --secondary-hover: #e0d7e9;
+        --error: #c0392b;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #17141c;
+          --card: #231f2b;
+          --text: #ece8f2;
+          --text-dim: #a59db3;
+          --accent: #a877b8;
+          --accent-hover: #b98ac8;
+          --secondary: #322c3d;
+          --secondary-hover: #3d364a;
+          --error: #ff7b6b;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        background-color: rgb(29, 29, 29);
+        background-color: var(--bg);
+        color: var(--text);
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        min-height: 100vh;
         margin: 0;
-        font-family: Arial, sans-serif;
+        padding: 16px;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
       }
 
-      #message {
-        color: rgb(231, 231, 231);
+      #card {
+        background-color: var(--card);
+        border-radius: 22px;
+        padding: 32px 28px;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
       }
 
-      #redirectButton {
+      h1 {
+        font-size: 20px;
+        margin: 0 0 8px;
+      }
+
+      #status {
+        color: var(--text-dim);
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      #status.error {
+        color: var(--error);
+      }
+
+      #actions {
         display: none;
-        padding: 10px 20px;
-        background-color: #007bff;
-        border-radius: 0.5em;
-        color: rgb(231, 231, 231);
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 24px;
       }
 
-      #redirectButton:hover {
-        background-color: #0056b3;
+      button {
+        border: none;
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.15s;
+      }
+
+      #returnButton {
+        background-color: var(--accent);
+        color: #ffffff;
+      }
+
+      #returnButton:hover {
+        background-color: var(--accent-hover);
+      }
+
+      #copyButton {
+        background-color: var(--secondary);
+        color: var(--text);
+      }
+
+      #copyButton:hover {
+        background-color: var(--secondary-hover);
+      }
+
+      #hint {
+        display: none;
+        color: var(--text-dim);
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 16px 0 0;
       }
     </style>
     <script>
+      const ALLOWED_DEEP_LINK = "app://patreonauth.msob7y.namida";
+      const LOOPBACK_STATE_REGEX = /^lp\.(\d{4,5})\.[A-Za-z0-9_-]+$/;
+
+      function buildQuery(params) {
+        const parts = [];
+        params.forEach((value, key) => {
+          parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+        });
+        return parts.join("&");
+      }
+
+      function resolveLoopbackPort(state) {
+        const match = LOOPBACK_STATE_REGEX.exec(state || "");
+        if (!match) return null;
+        const port = parseInt(match[1], 10);
+        return port >= 1024 && port <= 65535 ? port : null;
+      }
+
+      function showError(message) {
+        document.getElementById("title").textContent = "Sign in failed";
+        const status = document.getElementById("status");
+        status.textContent = message;
+        status.classList.add("error");
+      }
+
       window.onload = function () {
         const params = new URLSearchParams(window.location.search);
         const url = params.get("url");
         params.delete("url");
-        if (url) {
-          var finalUrl = url;
-          var firstP = true;
-          params.forEach((value, key) => {
-            var prefix;
-            if (firstP) {
-              prefix = "?";
-              firstP = false;
-            } else {
-              prefix = "&";
-            }
-            finalUrl += prefix + key + "=" + value;
-          });
 
-          window.location.href = finalUrl;
-
-          const redirectButton = document.getElementById("redirectButton");
-          redirectButton.onclick = function () {
-            window.location.href = finalUrl;
-          };
-
-          document.getElementById("message").innerText =
-            "Click the button to continue";
-          document.getElementById("message").innerText = finalUrl;
-          redirectButton.style.display = "inline-block";
-        } else {
-          document.getElementById("message").innerText =
-            "No URL provided for redirection.";
+        if (url !== ALLOWED_DEEP_LINK) {
+          showError("This redirect is not allowed.");
+          return;
         }
+
+        const error = params.get("error");
+        if (error) {
+          showError(params.get("error_description") || error);
+          return;
+        }
+
+        if (!params.get("code")) {
+          showError("No sign in code was provided. Please try signing in again from Namida.");
+          return;
+        }
+
+        const query = buildQuery(params);
+        const deepLink = ALLOWED_DEEP_LINK + "?" + query;
+        const loopbackPort = resolveLoopbackPort(params.get("state"));
+        const targetUrl = loopbackPort === null ? deepLink : "http://127.0.0.1:" + loopbackPort + "/patreonauth?" + query;
+
+        const goToTarget = function () {
+          window.location.href = targetUrl;
+        };
+
+        document.getElementById("returnButton").onclick = goToTarget;
+
+        const copyButton = document.getElementById("copyButton");
+        copyButton.onclick = async function () {
+          try {
+            await navigator.clipboard.writeText(deepLink);
+            copyButton.textContent = "Copied";
+          } catch (_) {
+            window.prompt("Copy this link", deepLink);
+          }
+          setTimeout(() => (copyButton.textContent = "Copy link"), 2000);
+        };
+
+        document.getElementById("actions").style.display = "flex";
+        document.getElementById("hint").style.display = "block";
+
+        goToTarget();
       };
     </script>
   </head>
 
   <body>
-    <div id="container">
-      <p id="message"></p>
-      <button id="redirectButton">Return to Namida</button>
+    <div id="card">
+      <h1 id="title">Returning to Namida…</h1>
+      <p id="status">You should be taken back automatically.</p>
+      <div id="actions">
+        <button id="returnButton">Return to Namida</button>
+        <button id="copyButton">Copy link</button>
+      </div>
+      <p id="hint">
+        If nothing happens, copy the link and paste it in Namida.<br />
+        Don't share this link with anyone.
+      </p>
     </div>
   </body>
 </html>
